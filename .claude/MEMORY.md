@@ -1,0 +1,3 @@
+- [ShooterSubsystem](ShooterSubsystem.java) — New subsystem with three Kraken X60 motors and basic velocity control methods
+- [Constants.java](Constants.java) — Added ShooterConstants inner class with CAN IDs and max RPS
+- [RobotContainer.java](RobotContainer.java) — Added shooter subsystem field, configuration, and getter

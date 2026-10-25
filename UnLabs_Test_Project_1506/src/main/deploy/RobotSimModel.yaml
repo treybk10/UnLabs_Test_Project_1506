@@ -1,0 +1,56 @@
+# MapleSim Simulation Model for FRC Robot
+# This file defines the physical properties and motor configurations for simulation
+
+robot:
+  # Basic robot dimensions (meters)
+  mass: 50.0  # kg
+  momentOfInertia: 4.5  # kg*m^2
+  width: 0.711  # 28 inches
+  length: 0.711  # 28 inches
+  wheelRadius: 0.0508  # 2 inches
+  trackWidth: 0.546  # 21.5 inches
+
+# Intake subsystem simulation configuration
+intake:
+  motor:
+    canId: 1
+    type: "TalonFX"  # Phoenix 6 TalonFX / Kraken X60
+    # Motor physical properties
+    freeSpeed: 5676  # RPM (Kraken X60 free speed)
+    freeCurrent: 1.5  # Amps
+    stallTorque: 4.69  # N*m (Kraken X60 stall torque)
+    stallCurrent: 257  # Amps
+    # Gear ratio (motor output to mechanism)
+    gearRatio: 1.0
+    # Motor simulation config
+    simConfig:
+      # MapleMotorSim configuration
+      kV: 0.018  # Voltage constant (V/RPM)
+      kA: 0.001  # Acceleration constant (V/(RPM/s))
+      kS: 0.2    # Static friction voltage
+      # Current limits from IntakeSubsystem
+      statorCurrentLimit: 40.0
+      supplyCurrentLimit: 50.0
+
+# NetworkTables publishing for AdvantageScope
+networkTables:
+  # Table where simulation data is published
+  simTable: "Sim"
+  # Topics to publish
+  topics:
+    - name: "Intake.Motor"
+      type: "double"
+      description: "Intake motor voltage/speed"
+    - name: "Intake.Position"
+      type: "double"
+      description: "Intake mechanism position (radians)"
+    - name: "Intake.Velocity"
+      type: "double"
+      description: "Intake mechanism velocity (rad/s)"
+
+# AdvantageScope configuration
+advantageScope:
+  # Auto-connect to AdvantageScope via NetworkTables
+  autoConnect: true
+  # Robot name for identification
+  robotName: "UnLabs Test Robot"

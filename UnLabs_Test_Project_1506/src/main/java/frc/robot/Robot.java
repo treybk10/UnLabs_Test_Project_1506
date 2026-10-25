@@ -7,6 +7,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -93,9 +98,29 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    // Initialize MapleSim simulation with 2026 Rebuilt field and game pieces
+    // Use 2026 Rebuilt arena (field with hubs, outposts, fuel)
+    Arena2026Rebuilt arena = new Arena2026Rebuilt();
+    SimulatedArena.overrideInstance(arena);
+
+    // Place fuel game pieces on the field (add some to starting positions)
+    arena.addGamePiece(new RebuiltFuelOnField(new Translation2d(Units.Meters.of(1.0), Units.Meters.of(1.0))));
+    arena.addGamePiece(new RebuiltFuelOnField(new Translation2d(Units.Meters.of(1.0), Units.Meters.of(3.0))));
+    arena.addGamePiece(new RebuiltFuelOnField(new Translation2d(Units.Meters.of(3.0), Units.Meters.of(1.0))));
+    arena.addGamePiece(new RebuiltFuelOnField(new Translation2d(Units.Meters.of(3.0), Units.Meters.of(3.0))));
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    // Step MapleSim arena (game pieces) forward
+    SimulatedArena.getInstance().simulationPeriodic();
+
+    // Step drivetrain simulation forward
+    m_robotContainer.getDrivetrainSubsystem().simulationPeriodic();
+
+    // Step intake subsystem simulation forward
+    m_robotContainer.getIntakeSubsystem().simulationPeriodic();
+  }
 }

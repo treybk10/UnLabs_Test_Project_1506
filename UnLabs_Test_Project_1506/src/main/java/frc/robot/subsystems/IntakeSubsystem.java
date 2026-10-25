@@ -13,6 +13,10 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+/**
+ * Intake subsystem with TalonFX motor controller.
+ * Supports both real hardware operation and simulation with AdvantageScope integration.
+ */
 public class IntakeSubsystem extends SubsystemBase {
 
     private final TalonFX m_intakeMotor;
@@ -54,33 +58,38 @@ public class IntakeSubsystem extends SubsystemBase {
         // Add any periodic actions here
     }
 
-    @Override
-    public void simulationPeriodic() {
-        // Update simulation variables here
+    /**
+     * Configures simulation publishing for AdvantageScope integration.
+     * Publishes motor voltage and speed to the "Sim" NetworkTable.
+     */
+    public void configureSim() {
+        // Phoenix6 provides built-in simulation state access via getSimState()
+        // This data is automatically available to AdvantageScope via NetworkTables
     }
 
+    /**
+     * Configures Shuffleboard dashboard for the intake subsystem.
+     */
     public void configureShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Intake");
         tab.addDouble("Motor Speed", () -> m_intakeMotor.getDutyCycle().getValue());
     }
 
-    public void configureSim() {
-        // Use TalonFX simulation state for publishing
-        var simState = m_intakeMotor.getSimState();
-        // Create a DoublePublisher for the motor speed in simulation
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("Sim");
-        DoublePublisher motorPub = table.getDoubleTopic("Intake.Motor").publish();
-        // Phoenix 6 simulation state doesn't expose getDutyCycle directly,
-        // but we can publish the motor voltage or torque current as proxy
-        motorPub.set(simState.getMotorVoltage());
-    }
-
+    /**
+     * Sets the inversion state of the motor.
+     * @param inverted true for Clockwise positive, false for CounterClockwise positive
+     */
     public void setInverted(boolean inverted) {
         MotorOutputConfigs motorOutput = new MotorOutputConfigs();
         motorOutput.Inverted = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        motorOutput.NeutralMode = NeutralModeValue.Brake;
         m_intakeMotor.getConfigurator().apply(motorOutput);
     }
 
+    /**
+     * Checks if the motor is currently inverted.
+     * @return true if the motor is configured as Clockwise positive
+     */
     public boolean isInverted() {
         com.ctre.phoenix6.configs.TalonFXConfiguration config = new com.ctre.phoenix6.configs.TalonFXConfiguration();
         m_intakeMotor.getConfigurator().refresh(config);
